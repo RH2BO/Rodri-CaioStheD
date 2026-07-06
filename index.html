@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Save the Date - Caio e Rodri</title>
-    <!-- Libreria de Estilos Pixel Art -->
     <link href="https://unpkg.com/nes.css@2.3.0/css/nes.min.css" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     
@@ -25,7 +24,7 @@
             width: 100%;
             min-height: 540px;
             
-            /* Nova imagem de fundo estática: Rio de Janeiro */
+            /* Fondo inicial: Ciudad Maravillosa */
             background-image: url('Fundorio.png');
             background-size: cover;
             background-position: center;
@@ -35,6 +34,7 @@
             padding: 25px 20px;
             border-radius: 4px;
             box-sizing: border-box;
+            transition: background-image 1s ease-in-out; /* Transición suave de fondo */
         }
         
         #game-flow {
@@ -55,11 +55,11 @@
             display: flex; 
         }
         
-        /* Burbujas orientadas a la izquierda (from-left) */
         .nes-balloon {
             background-color: rgba(255, 255, 255, 0.95) !important;
             margin-bottom: 20px;
             line-height: 1.5;
+            transition: opacity 0.5s ease; /* Desvanecimiento suave */
         }
         .nes-balloon::after {
             border-right-color: rgba(255, 255, 255, 0.95) !important;
@@ -77,6 +77,7 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
+            transition: opacity 0.5s ease;
         }
         
         .save-date-box {
@@ -87,6 +88,15 @@
             line-height: 1.6;
             margin-bottom: 15px;
             text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 1s ease, transform 1s ease;
+        }
+
+        /* Cuadro fijo final visible */
+        .save-date-box.show-fixed {
+            opacity: 1;
+            transform: translateY(0);
         }
         
         .highlight-date {
@@ -99,11 +109,10 @@
 </head>
 <body>
 
-<div class="game-container nes-container is-rounded">
+<div class="game-container nes-container is-rounded" id="main-container">
     
     <div id="game-flow">
 
-        <!-- PANTALLA 0: SELEÇÃO DE IDIOMA -->
         <div id="screen-idioma" class="screen active">
             <div class="nes-balloon from-left">
                 <p>Choose your language / Escolha o idioma / Elegí tu idioma:</p>
@@ -115,7 +124,6 @@
             </div>
         </div>
 
-        <!-- PANTALLA 1: DIÁLOGO PARTE 1 -->
         <div id="screen-intro1" class="screen">
             <div class="nes-balloon from-left">
                 <p id="text-intro1"></p>
@@ -125,7 +133,6 @@
             </div>
         </div>
 
-        <!-- PANTALLA 2: DIÁLOGO PARTE 2 -->
         <div id="screen-intro2" class="screen">
             <div class="nes-balloon from-left">
                 <p id="text-intro2"></p>
@@ -135,7 +142,6 @@
             </div>
         </div>
 
-        <!-- PANTALLA 3: DIÁLOGO PARTE 3 -->
         <div id="screen-intro3" class="screen">
             <div class="nes-balloon from-left">
                 <p id="text-intro3"></p>
@@ -145,14 +151,15 @@
             </div>
         </div>
 
-        <!-- PANTALLA 4: SAVE THE DATE (FINAL) -->
         <div id="screen-final" class="screen">
-            <div class="nes-balloon from-left">
+            <div class="nes-balloon from-left" id="balloon-final">
                 <p id="text-final-intro"></p>
             </div>
             <div class="bottom-content-wrapper">
                 <div class="save-date-box" id="box-date">
-                    <!-- Dinâmico -->
+                    </div>
+                <div class="btn-container" id="container-btn-final">
+                    <button class="nes-btn is-success" id="btn-reveal" onclick="ejecutarTransicionEfectiva()"></button>
                 </div>
             </div>
         </div>
@@ -164,27 +171,30 @@
     const i18n = {
         es: {
             btnSiguiente: "[ SIGUIENTE ]",
-            intro1: "¡Oi chéris! Bienvenidos a la maravillosa Río de Janeiro. Aquí me ven, disfrutando de la alta vida y de una caipiriña bien helada.",
-            intro2: "Pero entre tardes de sol en la pileta y leyendo las revistas exclusivas, me enteré de un chisme espectacular...",
-            intro3: "¡Mis papás (Rodri y Caio) finalmente decidieron formalizar su unión y se van a casar! Una boda magnífica.",
-            finalIntro: "Su presencia es de suma importancia para nuestra distinguida familia. Por favor, reserven esta fecha:",
-            dateBox: "✨ SAVE THE DATE ✨<br><div class='highlight-date'>17 de Abril de 2027</div>📍 Marina da Glória<br>🏙️ Rio de Janeiro<br><br>🥂 ¡Pronto recibirán la invitación oficial! 🐾"
+            btnRevelar: "[ DESCUBRIR FECHA ]",
+            intro1: "¡Hola! Mi nombre es Dona Flor... 🐾",
+            intro2: "Como el libro, ¡yo tendré dos maridos que se casan! 👨‍❤️‍👨",
+            intro3: "Prepárense para una experiencia especial en Río de Janeiro... 🏖️",
+            finalIntro: "¡Reserven la fecha en la Ciudad Maravillosa! ✨",
+            dateBox: "✨ SAVE THE DATE ✨<br><div class='highlight-date'>17 de Abril de 2027</div>📍 Marina da Glória<br>🏙️ Rio de Janeiro<br><br>🥂 ¡Pronto la invitación oficial! 🐾<br><br><a href='Caio-Rodri-Save-The-Date-ES.png' download='Caio-Rodri-Save-The-Date-ES.png' class='nes-btn is-warning' style='text-decoration:none; display:inline-block; font-size:9px;'>[ DESCARGAR IMAGEN ]</a>"
         },
         pt: {
             btnSiguiente: "[ SEGUINTE ]",
-            intro1: "Oi chéris! Bem-vindos ao maravilhoso Rio de Janeiro. Aqui estou eu, desfrutando da alta sociedade e de uma caipirinha bem gelada.",
-            intro2: "Mas entre tardes de sol na piscina e lendo as revistas mais exclusivas, soube de uma notícia fantástica...",
-            intro3: "Meus pais (Rodri e Caio) finalmente decidiram oficializar a sua união e vão casar! Um evento magnífico.",
-            finalIntro: "A presença de vocês é de extrema importância para a nossa família. Por favor, reservem esta distinta data:",
-            dateBox: "✨ SAVE THE DATE ✨<br><div class='highlight-date'>17 de Abril de 2027</div>📍 Marina da Glória<br>🏙️ Rio de Janeiro<br><br>🥂 Em breve vocês receberão o convite oficial! 🐾"
+            btnRevelar: "[ DESCOBRIR DATA ]",
+            intro1: "Olá! Meu nome é Dona Flor... 🐾",
+            intro2: "Como o livro, terei dois maridos que vão casar! 👨‍❤️‍👨",
+            intro3: "Preparem-se para uma experiencia especial no Rio de Janeiro... 🏖️",
+            finalIntro: "Reservem a data na Cidade Maravilhosa! ✨",
+            dateBox: "✨ SAVE THE DATE ✨<br><div class='highlight-date'>17 de Abril de 2027</div>📍 Marina da Glória<br>🏙️ Rio de Janeiro<br><br>🥂 Em breve o convite oficial! 🐾<br><br><a href='Caio-Rodri-Save-The-Date-PT.png' download='Caio-Rodri-Save-The-Date-PT.png' class='nes-btn is-warning' style='text-decoration:none; display:inline-block; font-size:9px;'>[ BAIXAR IMAGEM ]</a>"
         },
         en: {
             btnSiguiente: "[ NEXT ]",
-            intro1: "Oi chéris! Welcome to wonderful Rio de Janeiro. Here I am, enjoying the high life and a perfectly chilled caipirinha.",
-            intro2: "But between sunny afternoons by the pool and reading the most exclusive magazines, I found out some fantastic news...",
-            intro3: "My dads (Rodri and Caio) have finally decided to formalize their union and are getting married! A magnificent event.",
-            finalIntro: "Your presence is of the utmost importance to our family. Please, save this distinguished date:",
-            dateBox: "✨ SAVE THE DATE ✨<br><div class='highlight-date'>April 17, 2027</div>📍 Marina da Glória<br>🏙️ Rio de Janeiro<br><br>🥂 Official invitation will follow shortly! 🐾"
+            btnRevelar: "[ REVEAL DATE ]",
+            intro1: "Hello! My name is Dona Flor... 🐾",
+            intro2: "Just like the book, I'll have two husbands marrying! 👨‍❤️‍👨",
+            intro3: "Get ready for a special experience in Rio de Janeiro... 🏖️",
+            finalIntro: "Save the date in the Wonderful City! ✨",
+            dateBox: "✨ SAVE THE DATE ✨<br><div class='highlight-date'>April 17, 2027</div>📍 Marina da Glória<br>🏙️ Rio de Janeiro<br><br>🥂 Official invitation coming soon! 🐾<br><br><a href='Caio-Rodri-Save-The-Date-EN.png' download='Caio-Rodri-Save-The-Date-EN.png' class='nes-btn is-warning' style='text-decoration:none; display:inline-block; font-size:9px;'>[ DOWNLOAD IMAGE ]</a>"
         }
     };
 
@@ -204,6 +214,7 @@
         document.getElementById('btn-next3').innerText = t.btnSiguiente;
         
         document.getElementById('text-final-intro').innerText = t.finalIntro;
+        document.getElementById('btn-reveal').innerText = t.btnRevelar;
         document.getElementById('box-date').innerHTML = t.dateBox;
 
         nextScreen('idioma', 'intro1');
@@ -212,6 +223,27 @@
     function nextScreen(current, next) {
         document.getElementById(`screen-${current}`).classList.remove('active');
         document.getElementById(`screen-${next}`).classList.add('active');
+    }
+
+    function ejecutarTransicionEfectiva() {
+        // 1. Desvanecer la burbuja de texto superior y el contenedor de botones finales
+        const balloon = document.getElementById('balloon-final');
+        const btnContainer = document.getElementById('container-btn-final');
+        
+        balloon.style.opacity = '0';
+        btnContainer.style.opacity = '0';
+        
+        // 2. Cambiar suavemente el fondo del contenedor principal al retrato familiar
+        const container = document.getElementById('main-container');
+        container.style.backgroundImage = "url('UsBG.png')";
+        
+        // 3. Remover los elementos ocultos y fijar el recuadro del Save the Date en su lugar
+        setTimeout(() => {
+            balloon.style.display = 'none';
+            btnContainer.style.display = 'none';
+            
+            document.getElementById('box-date').classList.add('show-fixed');
+        }, 500); // Sincronizado con la transición de opacidad
     }
 </script>
 </body>
